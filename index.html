@@ -22,11 +22,11 @@
             -webkit-tap-highlight-color: transparent;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            background: #0f0c29;
         }
 
-        /* Critical: Force GPU acceleration + prevent repaint on scroll */
+        /* GPU acceleration for entire page */
         body {
-            background: #0f0c29;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
             backface-visibility: hidden;
@@ -35,7 +35,7 @@
             -webkit-perspective: 1000;
         }
 
-        /* Vanta Canvas: Completely disabled on mobile */
+        /* Vanta Canvas: Lightweight, persistent, no scroll interference */
         #vanta-canvas {
             position: fixed !important;
             top: 0 !important;
@@ -45,20 +45,26 @@
             z-index: -1 !important;
             pointer-events: none !important;
             touch-action: none !important;
-            opacity: 0; /* Hidden on mobile */
-            visibility: hidden;
-            display: none;
+            will-change: transform;
+            /* Force hardware acceleration */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
-        /* Desktop-only: Show Vanta */
+        /* Mobile: Ultra-light version */
+        @media (max-width: 768px) {
+            #vanta-canvas {
+                /* Minimal resource usage */
+                contain: layout style paint;
+            }
+        }
+
+        /* Desktop: Full quality */
         @media (min-width: 769px) {
             #vanta-canvas {
-                opacity: 1;
-                visibility: visible;
-                display: block;
-                will-change: transform;
-                transform: translateZ(0);
-                -webkit-transform: translateZ(0);
+                contain: none;
             }
         }
 
@@ -462,7 +468,7 @@
 </head>
 <body>
 
-    <!-- Vanta Canvas: Desktop-only -->
+    <!-- Vanta Canvas: Persistent, lightweight, scroll-proof -->
     <div id="vanta-canvas"></div>
 
     <header>
@@ -557,163 +563,81 @@
         </div>
     </footer>
 
-    <!-- Vanta.NET: Desktop only -->
+    <!-- Vanta.NET: Lightweight, persistent, scroll-proof -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
     <script>
         let vantaEffect = null;
-        let points = [];
-        let lines = [];
-        let isMobile = false;
-        let isAnimating = false;
+        let isMobile = window.innerWidth <= 768;
 
+        // Persistent Vanta: Never destroys, never reinits
         function initVanta() {
-            isMobile = window.innerWidth <= 768;
+            if (vantaEffect) return; // Already running
 
-            // DESTROY ON MOBILE
-            if (isMobile && vantaEffect) {
-                vantaEffect.destroy();
-                vantaEffect = null;
-                isAnimating = false;
-                return;
+            const config = {
+                el: "#vanta-canvas",
+                mouseControls: false,
+                touchControls: false,
+                gyroControls: false,
+                minHeight: 200,
+                minWidth: 200,
+                scale: 1,
+                scaleMobile: 1,
+                color: 0x00ffff,
+                backgroundColor: 0x0f0c29,
+                showDots: true,
+                // Mobile: ultra-light
+                points: isMobile ? 5 : 10,
+                maxDistance: isMobile ? 15 : 22,
+                spacing: isMobile ? 20 : 16,
+                speed: isMobile ? 0.3 : 1.0
+            };
+
+            vantaEffect = window.VANTA.NET(config);
+
+            // Gentle, continuous rotation (no jumps)
+            let rotation = 0;
+            function animate() {
+                if (!vantaEffect || !vantaEffect.camera) return;
+                rotation += 0.0003;
+                vantaEffect.camera.rotation.y = Math.sin(rotation) * 0.08;
+                vantaEffect.camera.rotation.x = Math.cos(rotation) * 0.04;
+                requestAnimationFrame(animate);
             }
-
-            // INIT ONLY ON DESKTOP
-            if (!isMobile) {
-                if (vantaEffect) vantaEffect.destroy();
-
-                vantaEffect = window.VANTA.NET({
-                    el: "#vanta-canvas",
-                    mouseControls: true,
-                    touchControls: true,
-                    gyroControls: false,
-                    minHeight: 200,
-                    minWidth: 200,
-                    scale: 1,
-                    scaleMobile: 1,
-                    color: 0x00ffff,
-                    backgroundColor: 0x0f0c29,
-                    points: 10,
-                    maxDistance: 22,
-                    spacing: 16,
-                    showDots: true,
-                    speed: 1.0
-                });
-
-                setTimeout(extractPointsAndLines, 800);
-                isAnimating = true;
-                animateRotation();
-            }
+            animate();
         }
 
-        function extractPointsAndLines() {
-            if (!vantaEffect || !vantaEffect.scene || isMobile) return;
-            points = vantaEffect.scene.children.filter(obj => obj.type === 'Points');
-            lines = vantaEffect.scene.children.filter(obj => obj.type === 'Line');
-        }
+        // Init once — never again
+        window.addEventListener('load', () => {
+            initVanta();
+        });
 
-        let rotation = 0;
-        function animateRotation() {
-            if (!isAnimating || !vantaEffect || !vantaEffect.camera) return;
-            rotation += 0.0005;
-            vantaEffect.camera.rotation.y = Math.sin(rotation) * 0.1;
-            vantaEffect.camera.rotation.x = Math.cos(rotation) * 0.05;
-            requestAnimationFrame(animateRotation);
-        }
-
-        function triggerNeuronPulse(clientX, clientY) {
-            if (isMobile || !vantaEffect || points.length === 0) return;
-
-            const canvas = document.getElementById('vanta-canvas');
-            const rect = canvas.getBoundingClientRect();
-            const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-            const y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-            let closestPoint = null;
-            let minDist = Infinity;
-
-            points.forEach(pointGroup => {
-                const positions = pointGroup.geometry.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    const px = positions[i] / vantaEffect.width * 2 - 1;
-                    const py = positions[i + 1] / vantaEffect.height * 2 - 1;
-                    const dist = Math.hypot(px - x, py - y);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closestPoint = { group: pointGroup, index: i };
-                    }
-                }
-            });
-
-            if (closestPoint && minDist < 0.3) {
-                const group = closestPoint.group;
-                const idx = closestPoint.index;
-
-                group.material.color.setHex(0xffffff);
-                group.scale.multiplyScalar(2);
-                setTimeout(() => {
-                    group.material.color.setHex(0x00ffff);
-                    group.scale.set(1, 1, 1);
-                }, 300);
-
-                lines.forEach(line => {
-                    const pos = line.geometry.attributes.position.array;
-                    for (let i = 0; i < pos.length; i += 6) {
-                        const dx1 = Math.abs(pos[i] - group.geometry.attributes.position.array[idx]);
-                        const dy1 = Math.abs(pos[i+1] - group.geometry.attributes.position.array[idx+1]);
-                        if (dx1 < 1 && dy1 < 1) {
-                            line.material.color.setHex(0xffffff);
-                            setTimeout(() => line.material.color.setHex(0x00ffff), 200);
-                        }
-                    }
-                });
-
-                if (navigator.vibrate) navigator.vibrate(30);
-            }
-        }
-
-        const canvas = document.getElementById('vanta-canvas');
-        const handleClick = e => triggerNeuronPulse(e.clientX, e.clientY);
-        const handleTouch = e => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            triggerNeuronPulse(touch.clientX, touch.clientY);
-        };
-
-        function setupDesktopListeners() {
-            if (!isMobile) {
-                canvas.addEventListener('click', handleClick);
-                canvas.addEventListener('touchstart', handleTouch, { passive: false });
-            }
-        }
-
-        function removeDesktopListeners() {
-            canvas.removeEventListener('click', handleClick);
-            canvas.removeEventListener('touchstart', handleTouch);
-        }
-
+        // Resize: Only update params, never destroy
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 const wasMobile = isMobile;
-                initVanta();
-                if (wasMobile && !isMobile) {
-                    setupDesktopListeners();
-                } else if (!wasMobile && isMobile) {
-                    removeDesktopListeners();
+                isMobile = window.innerWidth <= 768;
+
+                if (vantaEffect && wasMobile !== isMobile) {
+                    vantaEffect.setOptions({
+                        points: isMobile ? 5 : 10,
+                        maxDistance: isMobile ? 15 : 22,
+                        spacing: isMobile ? 20 : 16,
+                        speed: isMobile ? 0.3 : 1.0
+                    });
                 }
-            }, 200);
+            }, 300);
         });
 
-        window.addEventListener('load', () => {
-            initVanta();
-            if (!isMobile) setupDesktopListeners();
-        });
+        // Prevent any scroll interference
+        document.addEventListener('scroll', () => {}, { passive: true });
     </script>
 
     <script>
+        // Hamburger Menu
         const hamburger = document.querySelector('.hamburger');
         const navUl = document.querySelector('header ul');
 
@@ -724,11 +648,12 @@
 
         document.querySelectorAll('header ul li a').forEach(link => {
             link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navUl.classList.remove('active');
+                hamburger.classList.remove('active');
+                navUl.classList.remove('active');
             });
         });
 
+        // Section fade-in
         const sections = document.querySelectorAll('section');
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -736,7 +661,7 @@
                     entry.target.classList.add('visible');
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
 
         sections.forEach(section => observer.observe(section));
     </script>
