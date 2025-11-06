@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marko's projects</title>
+    <!-- No cache for instant updates -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <style>
-        /* Global Styles */
         *, *::before, *::after { box-sizing: border-box; }
         body {
             margin: 0;
@@ -16,6 +19,21 @@
             scroll-behavior: smooth;
             background: #0f0c29;
             min-height: 100vh;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Vanta Canvas: Full fixed background */
+        #vanta-canvas {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: -1 !important;
+            pointer-events: auto !important;
+            will-change: transform;
+            touch-action: none;
         }
 
         /* Container for centering content */
@@ -23,6 +41,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            position: relative;
+            z-index: 2;
         }
 
         /* Header */
@@ -123,14 +143,13 @@
 
         /* Hero Section */
         #hero {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             position: relative;
-            overflow: hidden;
             padding: 0 1rem;
         }
 
@@ -182,12 +201,12 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
-        .btn:hover {
+        .btn:hover, .btn:active {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
         }
 
-        .btn:hover::before {
+        .btn:hover::before, .btn:active::before {
             opacity: 1;
             transform: translate(25%, 25%);
         }
@@ -198,6 +217,8 @@
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s ease, transform 1s ease;
+            position: relative;
+            z-index: 2;
         }
 
         section.visible {
@@ -236,7 +257,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .project-card:hover {
+        .project-card:hover, .project-card:active {
             transform: scale(1.05);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
@@ -406,6 +427,9 @@
 </head>
 <body>
 
+    <!-- Vanta Canvas: Interactive -->
+    <div id="vanta-canvas"></div>
+
     <header>
         <nav class="container">
             <div class="logo">Marko Krstin</div>
@@ -430,7 +454,7 @@
     </section>
 
     <section id="about" class="container">
-        <h2>About Me</h2>
+        <h2>About me</h2>
         <p>
             I am a 23-year-old university dropout and dedicated young father of two beautiful children. 
             My passion lies in STEM — especially <strong>artificial intelligence</strong>, <strong>space exploration</strong>, <strong>biotechnology</strong>, and <strong>nuclear engineering</strong>.
@@ -440,7 +464,7 @@
             This allows me to scale into larger, more impactful real-world projects in the fields I love.
         </p>
         <p>
-            Reach me out if you want to build something cool together!
+            Reach me out if you want to build some cool stuff together!
         </p>
     </section>
 
@@ -480,7 +504,7 @@
                 <li>
                     <a href="#" target="_blank" rel="noopener noreferrer">
                         <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6ап627-5.373-12-12-12"/>
+                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
                         </svg>
                     </a>
                 </li>
@@ -498,36 +522,24 @@
         </div>
     </footer>
 
-    <!-- Vanta Background: Fixed, rotates gently, fully responsive -->
+    <!-- Vanta.NET + Fixed Neuron Fire on Click/Tap -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
     <script>
         let vantaEffect = null;
-        let canvasContainer = null;
+        let points = [];
+        let lines = [];
 
         function initVanta() {
             const isMobile = window.innerWidth <= 768;
 
             if (vantaEffect) vantaEffect.destroy();
 
-            if (!canvasContainer) {
-                canvasContainer = document.createElement('div');
-                canvasContainer.style.position = 'fixed';
-                canvasContainer.style.top = '0';
-                canvasContainer.style.left = '0';
-                canvasContainer.style.width = '100%';
-                canvasContainer.style.height = '100%';
-                canvasContainer.style.pointerEvents = 'none';
-                canvasContainer.style.zIndex = '-1';
-                canvasContainer.style.willChange = 'transform';
-                document.body.appendChild(canvasContainer);
-            }
-
-            vantaEffect = VANTA.NET({
-                el: canvasContainer,
-                mouseControls: !isMobile,
-                touchControls: false,
+            vantaEffect = window.VANTA.NET({
+                el: "#vanta-canvas",
+                mouseControls: true,
+                touchControls: true,
                 gyroControls: false,
                 minHeight: 200,
                 minWidth: 200,
@@ -541,16 +553,18 @@
                 showDots: true,
                 speed: isMobile ? 0.6 : 1.0
             });
+
+            // Wait for scene to fully render
+            setTimeout(extractPointsAndLines, 800);
         }
 
-        let resizeTimer;
-        function handleResize() {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                if (vantaEffect) vantaEffect.resize();
-            }, 150);
+        function extractPointsAndLines() {
+            if (!vantaEffect || !vantaEffect.scene) return;
+            points = vantaEffect.scene.children.filter(obj => obj.type === 'Points');
+            lines = vantaEffect.scene.children.filter(obj => obj.type === 'Line');
         }
 
+        // Gentle rotation
         let rotation = 0;
         function animateRotation() {
             if (vantaEffect && vantaEffect.camera) {
@@ -561,15 +575,88 @@
             requestAnimationFrame(animateRotation);
         }
 
+        // Neuron Pulse — now works on click/tap
+        function triggerNeuronPulse(clientX, clientY) {
+            if (!vantaEffect || points.length === 0) return;
+
+            const canvas = document.getElementById('vanta-canvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+            let closestPoint = null;
+            let minDist = Infinity;
+
+            points.forEach(pointGroup => {
+                const positions = pointGroup.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const px = positions[i] / vantaEffect.width * 2 - 1;
+                    const py = positions[i + 1] / vantaEffect.height * 2 - 1;
+                    const dist = Math.hypot(px - x, py - y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestPoint = { group: pointGroup, index: i };
+                    }
+                }
+            });
+
+            if (closestPoint && minDist < 0.3) {
+                const group = closestPoint.group;
+                const idx = closestPoint.index;
+
+                // Pulse the dot
+                group.material.color.setHex(0xffffff);
+                group.scale.multiplyScalar(2);
+                setTimeout(() => {
+                    group.material.color.setHex(0x00ffff);
+                    group.scale.set(1, 1, 1);
+                }, 300);
+
+                // Flash connected lines
+                lines.forEach(line => {
+                    const pos = line.geometry.attributes.position.array;
+                    for (let i = 0; i < pos.length; i += 6) {
+                        const dx1 = Math.abs(pos[i] - group.geometry.attributes.position.array[idx]);
+                        const dy1 = Math.abs(pos[i+1] - group.geometry.attributes.position.array[idx+1]);
+                        if (dx1 < 1 && dy1 < 1) {
+                            line.material.color.setHex(0xffffff);
+                            setTimeout(() => line.material.color.setHex(0x00ffff), 200);
+                        }
+                    }
+                });
+
+                // Haptic
+                if (navigator.vibrate) navigator.vibrate(30);
+            }
+        }
+
+        // Click & Tap Listeners
+        const canvas = document.getElementById('vanta-canvas');
+        canvas.addEventListener('click', e => triggerNeuronPulse(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            triggerNeuronPulse(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        // Resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                initVanta();
+            }, 200);
+        });
+
+        // Init
         window.addEventListener('load', () => {
             initVanta();
-            window.addEventListener('resize', handleResize);
             animateRotation();
         });
     </script>
 
     <script>
-        // Hamburger Menu Toggle
+        // Hamburger Menu
         const hamburger = document.querySelector('.hamburger');
         const navUl = document.querySelector('header ul');
 
@@ -585,7 +672,7 @@
             });
         });
 
-        // Intersection Observer
+        // Section fade-in
         const sections = document.querySelectorAll('section');
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
