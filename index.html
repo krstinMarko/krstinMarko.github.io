@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marko's Portfolio</title>
+    <title>Marko Krstin - Futuristic Portfolio</title>
     <style>
         /* Global Styles */
         body {
@@ -13,15 +13,7 @@
             color: #ffffff;
             overflow-x: hidden;
             scroll-behavior: smooth;
-        }
-
-        #vanta-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            background: #0f0c29; /* fallback while canvas loads */
         }
 
         /* Container for centering content */
@@ -37,8 +29,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.1); /* Semi-transparent for glass effect */
-            backdrop-filter: blur(10px); /* Glassmorphism blur */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
             transition: background 0.3s ease;
@@ -87,7 +79,7 @@
             height: 2px;
             bottom: -5px;
             left: 0;
-            background-color: #00ffff; /* Futuristic cyan */
+            background-color: #00ffff;
             transition: width 0.3s ease;
         }
 
@@ -156,14 +148,14 @@
             max-width: 600px;
         }
 
-        /* Glass Button Style (Double Glass Feeling like Apple UI) */
+        /* Glass Button Style */
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px); /* Stronger blur for double glass effect */
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px; /* Rounded like Apple buttons */
+            border-radius: 50px;
             color: #ffffff;
             text-decoration: none;
             font-weight: 500;
@@ -187,7 +179,7 @@
 
         .btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3); /* Futuristic glow */
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
         }
 
         .btn:hover::before {
@@ -200,7 +192,7 @@
             padding: 5rem 0;
             opacity: 0;
             transform: translateY(50px);
-            transition: opacity 1s ease, transform 1s ease;
+            transition: opacity  1s ease, transform 1s ease;
         }
 
         section.visible {
@@ -298,7 +290,7 @@
             color: #00ffff;
         }
 
-        /* About Section - Improved Readability */
+        /* About Section */
         #about p {
             font-size: 1.2rem;
             line-height: 1.8;
@@ -437,12 +429,9 @@
                 padding: 0 0.5rem;
             }
         }
-
-        /* Intersection Observer for animations */
     </style>
 </head>
 <body>
-    <div id="vanta-bg"></div>
 
     <header>
         <nav class="container">
@@ -462,7 +451,7 @@
     </header>
 
     <section id="hero">
-        <h1>Welcome to my portfolio</h1>
+        <h1>Welcome to my Portfolio</h1>
         <p>A showcase of my work and skills.</p>
         <a href="#projects" class="btn">View Projects</a>
     </section>
@@ -478,7 +467,7 @@
             This allows me to scale into larger, more impactful real-world projects in the fields I love.
         </p>
         <p>
-            My children are my greatest motivation. They inspire me to push boundaries, innovate, and strive for excellence every day.
+            If you want to build or fund something cool together reach me out!
         </p>
     </section>
 
@@ -542,55 +531,64 @@
         </div>
     </footer>
 
+    <!-- Vanta Background (optimized for mobile) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
     <script>
-    let vantaEffect = null;
+        let vantaEffect = null;
+        let canvasContainer = null;
 
-    function initVanta() {
-        const isMobile = window.innerWidth <= 768;
-        const isSlowDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        function initVanta() {
+            const isMobile = window.innerWidth <= 768;
 
-        if (vantaEffect) vantaEffect.destroy();
+            if (vantaEffect) vantaEffect.destroy();
 
-        vantaEffect = VANTA.NET({
-            el: "#vanta-bg",
-            mouseControls: !isMobile,
-            touchControls: !isMobile,
-            gyroControls: false,
-            minHeight: 200.00,
-            minWidth: 200.00,
-            scale: 1.00,
-            scaleMobile: 1.00,
-            color: 0x00ffff,
-            backgroundColor: 0x0f0c29,
-            points: isMobile ? 6 : 10,
-            maxDistance: isMobile ? 15 : 20,
-            spacing: isMobile ? 20 : 15,
-            showDots: !isMobile,
-            speed: isMobile ? 0.5 : 1.0
-        });
-    }
+            if (!canvasContainer) {
+                canvasContainer = document.createElement('div');
+                canvasContainer.style.position = 'fixed';
+                canvasContainer.style.top = '0';
+                canvasContainer.style.left = '0';
+                canvasContainer.style.width = '100%';
+                canvasContainer.style.height = '100%';
+                canvasContainer.style.pointerEvents = 'none';
+                canvasContainer.style.zIndex = '-1';
+                canvasContainer.style.willChange = 'transform';
+                document.body.appendChild(canvasContainer);
+            }
 
-    let ticking = false;
-    function onScroll() {
-        if (!ticking) {
-            window.requestAnimationFrame(() => {
-                if (vantaEffect && vantaEffect.renderer) {
-                    vantaEffect.renderer.setSize(window.innerWidth, window.innerHeight);
-                }
-                ticking = false;
+            vantaEffect = VANTA.NET({
+                el: canvasContainer,
+                mouseControls: !isMobile,
+                touchControls: !isMobile,
+                gyroControls: false,
+                minHeight: 200,
+                minWidth: 200,
+                scale: 1,
+                scaleMobile: 1,
+                color: 0x00ffff,
+                backgroundColor: 0x0f0c29,
+                points: isMobile ? 5 : 10,
+                maxDistance: isMobile ? 14 : 20,
+                spacing: isMobile ? 22 : 15,
+                showDots: !isMobile,
+                speed: isMobile ? 0.4 : 1
             });
-            ticking = true;
         }
-    }
 
-    window.addEventListener('load', () => {
-        initVanta();
-        window.addEventListener('resize', initVanta);
-        window.addEventListener('scroll', onScroll, { passive: true });
-    });
-</script>
+        let resizeTimer;
+        function handleResize() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (vantaEffect) vantaEffect.resize();
+            }, 150);
+        }
+
+        window.addEventListener('load', () => {
+            initVanta();
+            window.addEventListener('resize', handleResize);
+        });
+    </script>
 
     <script>
         // Hamburger Menu Toggle
@@ -602,7 +600,6 @@
             navUl.classList.toggle('active');
         });
 
-        // Close menu on link click (mobile)
         document.querySelectorAll('header ul li a').forEach(link => {
             link.addEventListener('click', () => {
                 hamburger.classList.remove('active');
@@ -625,5 +622,4 @@
         });
     </script>
 </body>
-
 </html>
