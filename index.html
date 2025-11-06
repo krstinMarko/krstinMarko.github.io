@@ -530,6 +530,7 @@
         let vantaEffect = null;
         let points = [];
         let lines = [];
+        let isAnimating = false;
 
         function initVanta() {
             const isMobile = window.innerWidth <= 768;
@@ -538,8 +539,8 @@
 
             vantaEffect = window.VANTA.NET({
                 el: "#vanta-canvas",
-                mouseControls: true,
-                touchControls: true,
+                mouseControls: !isMobile,
+                touchControls: !isMobile,
                 gyroControls: false,
                 minHeight: 200,
                 minWidth: 200,
@@ -551,11 +552,17 @@
                 maxDistance: isMobile ? 18 : 22,
                 spacing: isMobile ? 18 : 16,
                 showDots: true,
-                speed: isMobile ? 0.6 : 1.0
+                speed: isMobile ? 0 : 1.0
             });
 
             // Wait for scene to fully render
             setTimeout(extractPointsAndLines, 800);
+
+            updateListeners(isMobile);
+
+            // Handle rotation
+            isAnimating = !isMobile;
+            if (isAnimating) animateRotation();
         }
 
         function extractPointsAndLines() {
@@ -567,6 +574,7 @@
         // Gentle rotation
         let rotation = 0;
         function animateRotation() {
+            if (!isAnimating) return;
             if (vantaEffect && vantaEffect.camera) {
                 rotation += 0.0005;
                 vantaEffect.camera.rotation.y = Math.sin(rotation) * 0.1;
@@ -630,14 +638,23 @@
             }
         }
 
-        // Click & Tap Listeners
+        // Click & Tap Listeners setup
         const canvas = document.getElementById('vanta-canvas');
-        canvas.addEventListener('click', e => triggerNeuronPulse(e.clientX, e.clientY));
-        canvas.addEventListener('touchstart', e => {
+        const handleClick = e => triggerNeuronPulse(e.clientX, e.clientY);
+        const handleTouch = e => {
             e.preventDefault();
             const touch = e.touches[0];
             triggerNeuronPulse(touch.clientX, touch.clientY);
-        }, { passive: false });
+        };
+
+        function updateListeners(isMobile) {
+            canvas.removeEventListener('click', handleClick);
+            canvas.removeEventListener('touchstart', handleTouch);
+            if (!isMobile) {
+                canvas.addEventListener('click', handleClick);
+                canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            }
+        }
 
         // Resize
         let resizeTimer;
@@ -651,7 +668,6 @@
         // Init
         window.addEventListener('load', () => {
             initVanta();
-            animateRotation();
         });
     </script>
 
