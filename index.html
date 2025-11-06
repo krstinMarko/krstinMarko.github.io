@@ -10,20 +10,32 @@
     <meta http-equiv="Expires" content="0">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #ffffff;
             overflow-x: hidden;
             scroll-behavior: smooth;
-            background: #0f0c29;
             min-height: 100vh;
             position: relative;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Vanta Canvas: Full fixed background */
+        /* Critical: Force GPU acceleration + prevent repaint on scroll */
+        body {
+            background: #0f0c29;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            perspective: 1000;
+            -webkit-perspective: 1000;
+        }
+
+        /* Vanta Canvas: Completely disabled on mobile */
         #vanta-canvas {
             position: fixed !important;
             top: 0 !important;
@@ -31,16 +43,23 @@
             width: 100vw !important;
             height: 100vh !important;
             z-index: -1 !important;
-            pointer-events: none !important; /* Prevent interaction on mobile */
-            will-change: transform;
-            touch-action: none;
-            /* Critical fixes for mobile scroll freeze/reload */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            -webkit-perspective: 1000;
-            perspective: 1000;
+            pointer-events: none !important;
+            touch-action: none !important;
+            opacity: 0; /* Hidden on mobile */
+            visibility: hidden;
+            display: none;
+        }
+
+        /* Desktop-only: Show Vanta */
+        @media (min-width: 769px) {
+            #vanta-canvas {
+                opacity: 1;
+                visibility: visible;
+                display: block;
+                will-change: transform;
+                transform: translateZ(0);
+                -webkit-transform: translateZ(0);
+            }
         }
 
         /* Container for centering content */
@@ -60,9 +79,11 @@
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 1000;
             transition: background 0.3s ease;
+            transform: translateZ(0);
         }
 
         header:hover {
@@ -184,6 +205,7 @@
             padding: 1rem 2rem;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50px;
             color: #ffffff;
@@ -194,6 +216,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             font-size: clamp(0.9rem, 3vw, 1rem);
+            transform: translateZ(0);
         }
 
         .btn::before {
@@ -209,7 +232,7 @@
         }
 
         .btn:hover, .btn:active {
-            transform: translateY(-5px);
+            transform: translateY(-5px) translateZ(0);
             box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
         }
 
@@ -257,15 +280,17 @@
         .project-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 2rem;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: translateZ(0);
         }
 
         .project-card:hover, .project-card:active {
-            transform: scale(1.05);
+            transform: scale(1.05) translateZ(0);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
 
@@ -307,10 +332,12 @@
         footer {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             transition: background 0.3s ease;
             position: relative;
             z-index: 2;
+            transform: translateZ(0);
         }
 
         footer:hover {
@@ -378,6 +405,7 @@
                 width: 100%;
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
                 padding: 1rem 0;
                 gap: 1rem;
             }
@@ -434,7 +462,7 @@
 </head>
 <body>
 
-    <!-- Vanta Canvas: Static on mobile, interactive on desktop -->
+    <!-- Vanta Canvas: Desktop-only -->
     <div id="vanta-canvas"></div>
 
     <header>
@@ -529,7 +557,7 @@
         </div>
     </footer>
 
-    <!-- Vanta.NET + Fixed Neuron Fire on Click/Tap -->
+    <!-- Vanta.NET: Desktop only -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
@@ -543,17 +571,22 @@
         function initVanta() {
             isMobile = window.innerWidth <= 768;
 
-            if (vantaEffect) {
+            // DESTROY ON MOBILE
+            if (isMobile && vantaEffect) {
                 vantaEffect.destroy();
                 vantaEffect = null;
+                isAnimating = false;
+                return;
             }
 
-            // On mobile: static background, no interaction, no animation
-            if (isMobile) {
+            // INIT ONLY ON DESKTOP
+            if (!isMobile) {
+                if (vantaEffect) vantaEffect.destroy();
+
                 vantaEffect = window.VANTA.NET({
                     el: "#vanta-canvas",
-                    mouseControls: false,
-                    touchControls: false,
+                    mouseControls: true,
+                    touchControls: true,
                     gyroControls: false,
                     minHeight: 200,
                     minWidth: 200,
@@ -561,40 +594,17 @@
                     scaleMobile: 1,
                     color: 0x00ffff,
                     backgroundColor: 0x0f0c29,
-                    points: 7,
-                    maxDistance: 18,
-                    spacing: 18,
+                    points: 10,
+                    maxDistance: 22,
+                    spacing: 16,
                     showDots: true,
-                    speed: 0  // Completely static
+                    speed: 1.0
                 });
 
-                // Stop any ongoing animation
-                isAnimating = false;
-                return;
+                setTimeout(extractPointsAndLines, 800);
+                isAnimating = true;
+                animateRotation();
             }
-
-            // Desktop: full interactive + animation
-            vantaEffect = window.VANTA.NET({
-                el: "#vanta-canvas",
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200,
-                minWidth: 200,
-                scale: 1,
-                scaleMobile: 1,
-                color: 0x00ffff,
-                backgroundColor: 0x0f0c29,
-                points: 10,
-                maxDistance: 22,
-                spacing: 16,
-                showDots: true,
-                speed: 1.0
-            });
-
-            setTimeout(extractPointsAndLines, 800);
-            isAnimating = true;
-            animateRotation();
         }
 
         function extractPointsAndLines() {
@@ -603,7 +613,6 @@
             lines = vantaEffect.scene.children.filter(obj => obj.type === 'Line');
         }
 
-        // Gentle rotation (desktop only)
         let rotation = 0;
         function animateRotation() {
             if (!isAnimating || !vantaEffect || !vantaEffect.camera) return;
@@ -613,7 +622,6 @@
             requestAnimationFrame(animateRotation);
         }
 
-        // Neuron Pulse (desktop only)
         function triggerNeuronPulse(clientX, clientY) {
             if (isMobile || !vantaEffect || points.length === 0) return;
 
@@ -665,7 +673,6 @@
             }
         }
 
-        // Event listeners (desktop only)
         const canvas = document.getElementById('vanta-canvas');
         const handleClick = e => triggerNeuronPulse(e.clientX, e.clientY);
         const handleTouch = e => {
@@ -686,7 +693,6 @@
             canvas.removeEventListener('touchstart', handleTouch);
         }
 
-        // Resize handler
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
@@ -701,7 +707,6 @@
             }, 200);
         });
 
-        // Init on load
         window.addEventListener('load', () => {
             initVanta();
             if (!isMobile) setupDesktopListeners();
@@ -709,7 +714,6 @@
     </script>
 
     <script>
-        // Hamburger Menu
         const hamburger = document.querySelector('.hamburger');
         const navUl = document.querySelector('header ul');
 
@@ -720,12 +724,11 @@
 
         document.querySelectorAll('header ul li a').forEach(link => {
             link.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                navUl.classList.remove('active');
+            hamburger.classList.remove('active');
+            navUl.classList.remove('active');
             });
         });
 
-        // Section fade-in
         const sections = document.querySelectorAll('section');
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
