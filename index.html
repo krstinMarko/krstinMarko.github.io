@@ -3,485 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marko's projects</title>
-    <!-- No cache for instant updates -->
+    <title>Marko Krstin | Portfolio</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
-            margin: 0;
-            padding: 0;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             color: #ffffff;
             overflow-x: hidden;
             scroll-behavior: smooth;
             min-height: 100vh;
-            position: relative;
-            -webkit-tap-highlight-color: transparent;
+            background: #0f0c29;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background: #0f0c29;
         }
+        body { transform: translateZ(0); perspective: 1000; }
 
-        /* GPU acceleration for entire page */
-        body {
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            perspective: 1000;
-            -webkit-perspective: 1000;
-        }
-
-        /* Vanta Canvas: Lightweight, persistent, no scroll interference */
         #vanta-canvas {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            z-index: -1 !important;
-            pointer-events: none !important;
-            touch-action: none !important;
-            will-change: transform;
-            /* Force hardware acceleration */
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
+            position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important;
+            z-index: -1 !important; pointer-events: none !important; touch-action: none !important;
+            transform: translateZ(0); backface-visibility: hidden;
         }
 
-        /* Mobile: Ultra-light version */
-        @media (max-width: 768px) {
-            #vanta-canvas {
-                /* Minimal resource usage */
-                contain: layout style paint;
-            }
-        }
+        @media (max-width: 768px) { #vanta-canvas { contain: layout style paint; } }
+        @media (min-width: 769px) { #vanta-canvas { contain: none; } }
 
-        /* Desktop: Full quality */
-        @media (min-width: 769px) {
-            #vanta-canvas {
-                contain: none;
-            }
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 2; }
 
-        /* Container for centering content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Header */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 1000;
-            transition: background 0.3s ease;
-            transform: translateZ(0);
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); z-index: 1000; transition: background 0.3s ease;
         }
+        header:hover { background: rgba(255, 255, 255, 0.2); }
 
-        header:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; }
+        .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; animation: fadeIn 1s ease-in-out; }
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        ul {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-            margin: 0;
-            padding: 0;
-        }
-
+        ul { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
         ul li a {
-            text-decoration: none;
-            color: #ffffff;
-            font-weight: 300;
-            position: relative;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
+            text-decoration: none; color: #ffffff; font-weight: 300; position: relative; transition: color 0.3s ease;
+            display: flex; align-items: center;
         }
-
         ul li a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 0;
-            background-color: #00ffff;
-            transition: width 0.3s ease;
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0;
+            background: #00ffff; transition: width 0.3s ease;
         }
+        ul li a:hover { color: #00ffff; }
+        ul li a:hover::after { width: 100%; }
 
-        ul li a:hover {
-            color: #00ffff;
-        }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; gap: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: #ffffff; transition: all 0.3s ease; }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
 
-        ul li a:hover::after {
-            width: 100%;
-        }
-
-        /* Hamburger Menu */
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            gap: 5px;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
-
-        /* Hero Section */
         #hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            padding: 0 1rem;
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; padding: 0 1rem;
         }
+        #hero > * { z-index: 2; animation: slideUp 1.5s ease-out; }
+        h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin: 0; letter-spacing: 4px; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        #hero p { font-size: clamp(1rem, 4vw, 1.5rem); margin: 1rem 0; max-width: 90%; }
 
-        #hero > * {
-            z-index: 2;
-            animation: slideUp 1.5s ease-out;
-        }
-
-        h1 {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            margin: 0;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        }
-
-        #hero p {
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            margin: 1rem 0;
-            max-width: 90%;
-        }
-
-        /* Glass Button Style */
         .btn {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: clamp(0.9rem, 3vw, 1rem);
-            transform: translateZ(0);
+            display: inline-block; padding: 1rem 2rem; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50px; color: #ffffff;
+            text-decoration: none; font-weight: 500; position: relative; overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: clamp(0.9rem, 3vw, 1rem); transform: translateZ(0);
         }
-
         .btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
         }
-
         .btn:hover, .btn:active {
-            transform: translateY(-5px) translateZ(0);
-            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+            transform: translateY(-5px) translateZ(0); box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
         }
+        .btn:hover::before, .btn:active::before { opacity: 1; transform: translate(25%, 25%); }
 
-        .btn:hover::before, .btn:active::before {
-            opacity: 1;
-            transform: translate(25%, 25%);
-        }
-
-        /* Sections */
         section {
-            padding: 5rem 0;
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 1s ease, transform 1s ease;
-            position: relative;
-            z-index: 2;
+            padding: 5rem 0; opacity: 0; transform: translateY(50px) scale(0.95);
+            transition: opacity 1s ease, transform 1s ease; position: relative; z-index: 2;
         }
+        section.visible { opacity: 1; transform: translateY(0) scale(1); }
 
-        section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        h2 { font-size: clamp(2rem, 6vw, 3rem); text-align: center; margin-bottom: 3rem; letter-spacing: 3px; text-shadow: 0 0 5px rgba(0, 255, 255, 0.3); }
 
-        h2 {
-            font-size: clamp(2rem, 6vw, 3rem);
-            text-align: center;
-            margin-bottom: 3rem;
-            letter-spacing: 3px;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
-        }
+        #projects, #contact { scroll-margin-top: 4rem; }
 
-        /* Anchor fix for fixed header */
-        #about, #projects, #contact {
-            scroll-margin-top: 4rem;
-        }
-
-        /* Projects Grid */
         .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            padding: 0 1rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem; padding: 0 1rem;
         }
-
         .project-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            transform: translateZ(0);
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2rem; text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; transform: translateZ(0);
         }
+        .project-card:hover { transform: scale(1.05) translateZ(0); box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); }
+        .coming-soon { font-size: 1.2rem; color: #00ffff; margin: 1rem 0; }
 
-        .project-card:hover, .project-card:active {
-            transform: scale(1.05) translateZ(0);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-        }
-
-        .coming-soon {
-            font-size: 1.2rem;
-            color: #00ffff;
-            margin: 1rem 0;
-        }
-
-        /* Contact Buttons */
         .contact-buttons {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 2rem;
-            width: 100%;
-            padding: 0 1rem;
+            display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+            margin-top: 2rem; width: 100%; padding: 0 1rem;
         }
 
-        .separator {
-            text-align: center;
-            margin: 1rem 0;
-            font-size: 1.2rem;
-            color: #00ffff;
-        }
-
-        /* About Section */
-        #about p {
-            font-size: clamp(1rem, 3.5vw, 1.2rem);
-            line-height: 1.8;
-            max-width: 800px;
-            margin: 1.5rem auto;
-            text-align: center;
-            padding: 0 1rem;
-        }
-
-        /* Footer */
         footer {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            transition: background 0.3s ease;
-            position: relative;
-            z-index: 2;
-            transform: translateZ(0);
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2); transition: background 0.3s ease; z-index: 2;
         }
+        footer:hover { background: rgba(255, 255, 255, 0.2); }
+        footer nav { display: flex; justify-content: center; padding: 1rem 2rem; }
+        footer .copyright { text-align: center; padding: 1rem 0; font-size: 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        footer .copyright p { margin: 0; font-size: clamp(0.8rem, 2.5vw, 1rem); }
 
-        footer:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        .social-icon { width: 20px; height: 20px; fill: #ffffff; transition: fill 0.3s ease; }
+        ul li a:hover .social-icon { fill: #00ffff; }
 
-        footer nav {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
-        footer .copyright {
-            text-align: center;
-            padding: 1rem 0;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        footer .copyright p {
-            margin: 0;
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-        }
-
-        /* Social Icons */
-        .social-icon {
-            width: 20px;
-            height: 20px;
-            fill: #ffffff;
-            transition: fill 0.3s ease;
-        }
-
-        ul li a:hover .social-icon {
-            fill: #00ffff;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            nav {
-                padding: 1rem;
-            }
-
-            header ul {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                padding: 1rem 0;
-                gap: 1rem;
-            }
-
-            header ul.active {
-                display: flex;
-            }
-
-            header ul li {
-                text-align: center;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            footer ul {
-                gap: 2rem;
-            }
-
-            .social-icon {
-                width: 28px;
-                height: 28px;
-            }
+            .container { padding: 1rem; } nav { padding: 1rem; }
+            header ul { display: none; flex-direction: column; position: absolute; top: 60px; left: 0; width: 100%;
+                background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 1rem 0; gap: 1rem; }
+            header ul.active { display: flex; } header ul li { text-align: center; }
+            .hamburger { display: flex; } .projects-grid { grid-template-columns: 1fr; }
+            .social-icon { width: 28px; height: 28px; }
         }
-
         @media (max-width: 480px) {
-            .container {
-                padding: 0.5rem;
-            }
-
-            nav {
-                padding: 0.75rem 1rem;
-            }
-
-            #hero {
-                padding: 0 0.5rem;
-            }
-
-            .contact-buttons {
-                gap: 1rem;
-            }
-
-            .btn {
-                padding: 0.8rem 1.5rem;
-            }
+            .container { padding: 0.5rem; } nav { padding: 0.75rem 1rem; }
+            #hero { padding: 0 0.5rem; } .contact-buttons { gap: 1rem; } .btn { padding: 0.8rem 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Vanta Canvas: Persistent, lightweight, scroll-proof -->
     <div id="vanta-canvas"></div>
 
     <header>
         <nav class="container">
             <div class="logo">Marko Krstin</div>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            <div class="hamburger"><span></span><span></span><span></span></div>
             <ul>
                 <li><a href="#hero">Home</a></li>
-                <li><a href="#about">About me</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
@@ -492,21 +162,6 @@
         <h1>Welcome to my portfolio</h1>
         <p>A showcase of my work and skills.</p>
         <a href="#projects" class="btn">View Projects</a>
-    </section>
-
-    <section id="about" class="container">
-        <h2>About me</h2>
-        <p>
-            I am a 23-year-old university dropout and dedicated young father of two beautiful children. 
-            My passion lies in STEM — especially <strong>artificial intelligence</strong>, <strong>space exploration</strong>, <strong>biotechnology</strong>, and <strong>nuclear engineering</strong>.
-        </p>
-        <p>
-            Right now, I'm focused on building financial stability through software development. 
-            This allows me to scale into larger, more impactful real-world projects in the fields I love.
-        </p>
-        <p>
-            Reach me out if you want to build some cool stuff together!
-        </p>
     </section>
 
     <section id="projects" class="container">
@@ -534,7 +189,7 @@
         <h2>Contact</h2>
         <div class="contact-buttons">
             <a href="mailto:xkrstinmarko@gmail.com" class="btn">Send Email</a>
-            <div class="separator">OR</div>
+            <div style="font-weight:300;opacity:0.8;">OR</div>
             <a href="https://x.com/markokrstin1" target="_blank" rel="noopener noreferrer" class="btn">DM on X</a>
         </div>
     </section>
@@ -542,110 +197,77 @@
     <footer>
         <nav class="container">
             <ul>
-                <li>
-                    <a href="https://github.com/krstinMarko" target="_blank" rel="noopener noreferrer">
-                        <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                        </svg>
-                    </a>
-                </li>
-                <li>
-                    <a href="https://x.com/markokrstin1" target="_blank" rel="noopener noreferrer">
-                        <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                        </svg>
-                    </a>
-                </li>
+                <li><a href="https://github.com/krstinMarko" target="_blank" rel="noopener noreferrer">
+                    <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                </a></li>
+                <li><a href="https://x.com/markokrstin1" target="_blank" rel="noopener noreferrer">
+                    <svg class="social-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                </a></li>
             </ul>
         </nav>
-        <div class="copyright">
-            <p>© 2025 Marko Krstin. All rights reserved.</p>
-        </div>
+        <div class="copyright"><p>© 2025 Marko Krstin. All rights reserved.</p></div>
     </footer>
 
-    <!-- Vanta.NET: Lightweight, persistent, scroll-proof -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
     <script>
-        let vantaEffect = null;
-        let isMobile = window.innerWidth <= 768;
+        let vantaEffect = null, isMobile = window.innerWidth <= 768;
 
-        // Persistent Vanta: Never destroys, never reinits
         function initVanta() {
-            if (vantaEffect) return; // Already running
-
-            const config = {
+            if (vantaEffect) return;
+            vantaEffect = window.VANTA.NET({
                 el: "#vanta-canvas",
-                mouseControls: false,
-                touchControls: false,
-                gyroControls: false,
-                minHeight: 200,
-                minWidth: 200,
-                scale: 1,
-                scaleMobile: 1,
-                color: 0x00ffff,
-                backgroundColor: 0x0f0c29,
-                showDots: true,
-                // Mobile: ultra-light
-                points: isMobile ? 5 : 10,
-                maxDistance: isMobile ? 15 : 22,
-                spacing: isMobile ? 20 : 16,
-                speed: isMobile ? 0.3 : 1.0
-            };
+                mouseControls: false, touchControls: false, gyroControls: false,
+                minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
+                color: 0x00ffff, backgroundColor: 0x0f0c29, showDots: true,
+                points: isMobile ? 8 : 15,
+                maxDistance: isMobile ? 18 : 25,
+                spacing: isMobile ? 18 : 15,
+                speed: isMobile ? 0.5 : 1.5
+            });
 
-            vantaEffect = window.VANTA.NET(config);
-
-            // Gentle, continuous rotation (no jumps)
             let rotation = 0;
             function animate() {
                 if (!vantaEffect || !vantaEffect.camera) return;
-                rotation += 0.0003;
-                vantaEffect.camera.rotation.y = Math.sin(rotation) * 0.08;
-                vantaEffect.camera.rotation.x = Math.cos(rotation) * 0.04;
+                rotation += 0.001;
+                vantaEffect.camera.rotation.y = Math.sin(rotation) * 0.2;
+                vantaEffect.camera.rotation.x = Math.cos(rotation) * 0.1;
+                vantaEffect.camera.rotation.z = Math.sin(rotation * 0.5) * 0.05;
                 requestAnimationFrame(animate);
             }
             animate();
         }
 
-        // Init once — never again
-        window.addEventListener('load', () => {
-            initVanta();
-        });
+        window.addEventListener('load', initVanta);
 
-        // Resize: Only update params, never destroy
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
                 const wasMobile = isMobile;
                 isMobile = window.innerWidth <= 768;
-
                 if (vantaEffect && wasMobile !== isMobile) {
                     vantaEffect.setOptions({
-                        points: isMobile ? 5 : 10,
-                        maxDistance: isMobile ? 15 : 22,
-                        spacing: isMobile ? 20 : 16,
-                        speed: isMobile ? 0.3 : 1.0
+                        points: isMobile ? 8 : 15,
+                        maxDistance: isMobile ? 18 : 25,
+                        spacing: isMobile ? 18 : 15,
+                        speed: isMobile ? 0.5 : 1.5
                     });
                 }
             }, 300);
         });
 
-        // Prevent any scroll interference
-        document.addEventListener('scroll', () => {}, { passive: true });
-    </script>
-
-    <script>
-        // Hamburger Menu
         const hamburger = document.querySelector('.hamburger');
         const navUl = document.querySelector('header ul');
-
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
             navUl.classList.toggle('active');
         });
-
         document.querySelectorAll('header ul li a').forEach(link => {
             link.addEventListener('click', () => {
                 hamburger.classList.remove('active');
@@ -653,16 +275,12 @@
             });
         });
 
-        // Section fade-in
         const sections = document.querySelectorAll('section');
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
-
         sections.forEach(section => observer.observe(section));
     </script>
 </body>
